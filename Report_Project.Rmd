@@ -1,0 +1,204 @@
+---
+title: "Data Science Project"
+author: "Liza Pikovsky, Matanel Zoldan, Osnat Versulker, Shaul Ora, Netanel Malka"
+date: "24 6 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(CATT)
+library(dbplyr)
+library(dplyr)
+library(ggplot2)
+library(Hmisc)
+library(htmlTable)
+library(htmltools)
+library(HTMLUtils)
+library(htmlwidgets)
+library(knitr)
+library(markdown)
+#library(MASS, lib.loc = "C:/Program Files/Microsoft/R Client/R_SERVER/library")
+library(rmarkdown)
+library(tidyverse)
+library(scatterplot3d)
+library(rgl)
+library(plotrix)
+lana.pro <- read.csv("codnew4.csv") #השמת בסיס נתונים
+
+```
+##  
+The education system in Israel is divided into several types that combine online learning tools. When,
+On the one hand, schools that encourage activity in computerized systems to enter grades and monitor students. And on the other hand, low-awareness schools use these systems, preferring manual monitoring by teachers. As part of our undergraduate studies in industrial engineering and management, we conduct research.
+The aim of the study is to understand the difficulties that teaching staff face and how much change and accessibility is needed in the computerized systems in the education systems.
+
+##  Statistic analysis
+Median year of birth of the person who answered the survey 
+```{r}
+median(lana.pro$date.b) 
+```
+Average weekly hours
+```{r}
+mean(lana.pro$sum.hour)
+```
+Standard deviation of learning from shopping
+```{r}
+sd(lana.pro$techno.1) 
+
+```
+
+
+
+
+
+## The Cochran-Armitage Trend Test
+The Kokran-Armitage test is a variation of a live-squared test that is suitable for assessing the trend of the relationship between two qualitative variables, one of which is measured on a arranged scale of measurement, and the other receives only two values. Unlike a quadratic live test, this test takes into account the fact that there is an order between the values of the ordered variable. This test is a particular case of the M square test.
+
+
+```{r}
+CATT(lana.pro$sex,lana.pro$techno)
+```
+According to the value of p-value, it can be seen that the female sex has high technological abilities.
+
+
+## Graphs
+
+
+## 1. Distribution of answers by region
+ 
+```{r}
+pie.aera <- table(lana.pro$area)
+names(pie.aera) <- c("Jerusalem" , "North" ,  "Haifa" ,  "Center" ,  "Tel-Aviv" , "South" , "Jehuda & Samaria")
+pie3D(pie.aera,labels=names(pie.aera),explode=0.1,
+   main="Pie Chart of Counties")
+
+
+```
+
+##  2. Age distribution of the respondents
+
+
+```{r}
+hist(lana.pro$date.b ,main ="Age distribution" ,xlab = "year", ylab = "people")
+
+```
+
+## 3. Seniority vs technological capabilities
+
+```{r}
+ggplot(data=lana.pro,mapping=aes(x=veteq ,y=techno))+
+  geom_jitter(position=position_jitter(0.2))+
+  labs(title="Seniority vs technological capabilities",
+       x="Seniority",
+       y = "technological capabilities")
+
+```
+
+
+## 4. Educational institution sector
+מקראexplanation:
+0 = state
+1 = State religious
+2 = Haredi
+ניתן לראות כי חלק ניכר ממשתתפי הסקר הם מורים בבי"ס ממלכתיים
+```{r}
+ggplot(data = lana.pro,aes(migzar))+
+  geom_bar()+
+  labs(title="Educational institution sector",
+       x="Sector",col="darkblue")
+```
+
+## 5. Number of hours distributed over the number of classes
+
+It can be seen that as the number of classes a teacher teaches in them increases the distribution of hours he will teach decreases.
+```{r}
+ggplot(data = lana.pro, aes(sum.hour,num.lev))+  
+  geom_violin(fill="blue")+
+  labs(title="Number of hours distributed over the number of classes",x="Amount of frontal hours", y = "Num of classes")+
+  theme_classic()
+```
+
+
+##  6. Effect of study seniority on the number of frontal hours
+```{r}
+ggplot(lana.pro)+
+  geom_col(fill = "lightblue",
+           color = "black",
+           aes(x = sum.hour ,y = veteq))+
+  geom_label(aes(x = sum.hour,
+                 y = veteq,
+                 label = paste0(round(veteq, 0), "%"))) +
+  ggtitle("Effect of study seniority on the number of frontal hours",
+          subtitle = "Based on 2020 survey")
+```
+
+## 7. Distribution by gender
+ 
+1 = Female
+0 = Male
+
+```{r}
+ggplot(data = lana.pro, aes(sex ,color="steelblue"))+
+  geom_bar()+
+  labs(title="Distribution by gender",
+       x="Gender")
+
+```
+
+## 8. Has online learning strengthened the control of online teaching?
+It can be seen from the graph that distance learning has strengthened mastery of online teaching and in the future they want to continue.
+```{r}
+ggplot(data = lana.pro,aes(COVID.19 , merahok))+
+  geom_raster()+
+  labs(title="Has online learning strengthened the control of online teaching?",
+       x="Online learning",
+       y = "Future application")
+
+```
+
+
+## 9. Using Online Courses - Universities vs. Colleges
+
+1 = Colleges
+2 = Universities
+
+```{r}
+
+
+ggplot(data = lana.pro,aes(mosad,cuors))+
+  geom_jitter(position=position_jitter(0.2))+
+  labs(title="Using Online Courses - Universities vs. Colleges",
+       x="Type of institution",
+       y = "Online courses")
+
+```
+
+
+## 10. Study hours online during the Corona
+It can be seen that Ruth the teachers taught between 10 and 15 hours of study per week during this period.
+
+```{r}
+boxplot(lana.pro$techno.1, main = "Study hours online during the Corona",
+        xlab = "Hours",
+        ylab = "COVID 19",
+        col = "orange",
+        border = "brown",
+        horizontal = TRUE,
+        notch = TRUE)
+
+```
+## Relationship between routine study hours and the corona period
+QQPLOT graph that analyzes the relationship between frontal study hours and online study hours
+It can be seen that there is a gap between the normal hours and the corona hours.
+
+```{r}
+
+qqplot(x = lana.pro$sum.hour,
+       y = lana.pro$techno.1,
+       xlab = "Frontal hours in routine",
+       ylab = "Online hours during the Corona",
+       main = "The relationship between school hours in the routine and the Corona period")
+
+
+```
+
