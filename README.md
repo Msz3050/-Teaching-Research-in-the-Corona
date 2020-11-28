@@ -1,0 +1,2 @@
+# -Teaching-Research-in-the-Corona
+*** Teaching Research in the Corona Period (Covid-19) in Israel *** As part of a bachelor's degree in industrial engineering and management We did a little research as part of the data science course The study dealt with the effects of distance learning on teachers in Israel We conducted some analysis and statistical tests And we dealt with the visibility of the data
